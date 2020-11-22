@@ -1,0 +1,13 @@
+{
+  "name": "com.pprokopov.modular-framework.preloading-module",
+  "displayName": "Module with preloading system",
+  "version": "0.0.1",
+  "unity": "2019.4",
+  "description": "Just a module to execute some commands before game starts",
+  "keywords": [ "module", "popus" ],
+  "category": "module",
+  "dependencies": {
+  "com.pprokopov.modular-framework-core" :  "https://github.com/Xonoroff/modular-framework-unity-source.git",
+  "com.cysharp.unitask" : "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask"
+  }
+}
