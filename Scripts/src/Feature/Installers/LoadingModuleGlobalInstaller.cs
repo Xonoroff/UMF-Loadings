@@ -14,6 +14,7 @@ namespace Scripts.src.Feature.Installers
         public override void InstallBindings()
         {
             eventBus.DeclareSignal<OnLoadingShouldBeStartedSignal>();
+            eventBus.DeclareSignal<OnLoadingCompletedSignal>();
             
             base.InstallBindings();
         }
