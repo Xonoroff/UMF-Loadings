@@ -2,7 +2,8 @@
 
 namespace Scripts.src.Infrastructure.Interfaces.Messaging.Signals
 {
-    public class OnPreloadingShouldBeStarted : SignalBase
+    public class OnLoadingCompletedSignal : SignalBase
     {
+        
     }
 }

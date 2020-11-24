@@ -1,10 +1,8 @@
 {
-    "name": "PreloadingModule.Feature",
+    "name": "LoadingModule.Infrastructure",
     "references": [
         "Core",
-        "Zenject",
-        "Unity.TextMeshPro",
-        "PreloadingModule.Infrastructure"
+        "Zenject"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

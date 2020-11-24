@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using Core.src.Infrastructure;
 
-namespace PreloadingModule.src.Managers
+namespace Scripts.src.Feature.Managers
 {
-    public class PreloadingManager : IPreloadingManager
+    public class LoadingManager : ILoadingManager
     {
         public event Action<ICommand> OnCommandStartedExecution;
         public event Action<ICommand> OnCommandCompleted;
         public event Action<ICommand, Exception> OnCommandFailed;
-        public event Action OnPreloadingCompleted;
+        public event Action OnLoadingCompleted;
 
         public ICommand CurrentCommand => commandExecutor.Current;
 
@@ -20,7 +20,7 @@ namespace PreloadingModule.src.Managers
 
         private List<ICommand> commandsToExecute;
 
-        public PreloadingManager(ICommandExecutor commandExecutor, List<ICommand> commandsToExecute)
+        public LoadingManager(ICommandExecutor commandExecutor, List<ICommand> commandsToExecute)
         {
             this.commandsToExecute = commandsToExecute;
             this.commandExecutor = commandExecutor;
@@ -30,6 +30,10 @@ namespace PreloadingModule.src.Managers
         private void Initialize()
         {
             commandExecutor.Initialize(commandsToExecute);
+            commandExecutor.OnCommandStartedExecution += OnCommandStartedExecution;
+            commandExecutor.OnCommandCompleted += OnCommandCompleted;
+            commandExecutor.OnCommandFailed += OnCommandFailed;
+            commandExecutor.OnAllCompleted += (wasErrors) => OnLoadingCompleted?.Invoke();
         }
         
         public void StartPreloading()

@@ -1,11 +1,12 @@
 {
-    "name": "PreloadingModule.Editor",
+    "name": "LoadingModule.Feature",
     "references": [
-        "GUID:6432bd25d379fb34abf6cbaa01fd221b"
+        "Core",
+        "Zenject",
+        "Unity.TextMeshPro",
+        "LoadingModule.Infrastructure"
     ],
-    "includePlatforms": [
-        "Editor"
-    ],
+    "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,

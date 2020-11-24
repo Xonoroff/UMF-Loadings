@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 
-namespace PreloadingModule.src.Views
+namespace Scripts.src.Feature.Views
 {
-    public interface IPreloadingView
+    public interface ILoadingView
     {
         GameObject GameObject { get; }
         void SetProgressText(string text);

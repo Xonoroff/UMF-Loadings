@@ -1,10 +1,9 @@
-﻿using Core.src.Infrastructure;
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 
-namespace PreloadingModule.src.Views
+namespace Scripts.src.Feature.Views
 {
-    public class PreloadingView : MonoBehaviour, IPreloadingView
+    public class LoadingView : MonoBehaviour, ILoadingView
     {
         [SerializeField]
         private TextMeshProUGUI headerLabel;

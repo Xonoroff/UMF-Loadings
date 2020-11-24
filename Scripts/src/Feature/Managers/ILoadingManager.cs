@@ -1,9 +1,9 @@
 ﻿using System;
 using Core.src.Infrastructure;
 
-namespace PreloadingModule.src.Managers
+namespace Scripts.src.Feature.Managers
 {
-    public interface IPreloadingManager
+    public interface ILoadingManager
     {
         event Action<ICommand> OnCommandStartedExecution;
         
@@ -11,7 +11,7 @@ namespace PreloadingModule.src.Managers
         
         event Action<ICommand, Exception> OnCommandFailed;
         
-        event Action OnPreloadingCompleted;
+        event Action OnLoadingCompleted;
 
         ICommand CurrentCommand { get; }
         
