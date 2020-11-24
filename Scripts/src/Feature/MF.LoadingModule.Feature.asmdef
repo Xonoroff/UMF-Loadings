@@ -1,10 +1,10 @@
 {
-    "name": "LoadingModule.Feature",
+    "name": "MF.LoadingModule.Feature",
     "references": [
         "Core",
         "Zenject",
         "Unity.TextMeshPro",
-        "LoadingModule.Infrastructure"
+        "MF.LoadingModule.Infrastructure"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
