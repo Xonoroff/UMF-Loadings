@@ -1,5 +1,5 @@
 {
-    "name": "LoadingModule.Infrastructure",
+    "name": "MF.LoadingModule.Infrastructure",
     "references": [
         "Core",
         "Zenject"
