@@ -8,7 +8,7 @@ namespace Scripts.src.Feature.Installers
     {
         public override void InstallBindings()
         {
-            Container.Bind<ILoadingManager>().To<LoadingManager>().AsCached();
+            Container.Bind<ILoadingManager>().To<LoadingManager>().AsTransient();
             Container.Bind<ILoadingViewManager>().To<LoadingViewManager>().AsTransient();
 
             LoadingModuleSignalsInstaller.Install(Container);
