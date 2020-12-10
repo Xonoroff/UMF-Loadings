@@ -4,6 +4,7 @@ using Core.src.Messaging;
 using Scripts.src.Feature.Managers;
 using Scripts.src.Feature.Views;
 using Scripts.src.Infrastructure.Interfaces.Messaging.Signals;
+using UnityEngine;
 using Zenject;
 using Object = UnityEngine.Object;
 
@@ -59,6 +60,7 @@ namespace Scripts.src.Feature.ViewManagers
         private void OnLoadingCompletedHandler()
         {
             Object.Destroy(loadingView.GameObject);
+            Resources.UnloadUnusedAssets();
             eventBus.Fire(new OnLoadingCompletedSignal());
         }
 
