@@ -61,6 +61,7 @@ namespace Scripts.src.Feature.ViewManagers
         {
             Object.Destroy(loadingView.GameObject);
             Resources.UnloadUnusedAssets();
+            GC.Collect();
             eventBus.Fire(new OnLoadingCompletedSignal());
         }
 

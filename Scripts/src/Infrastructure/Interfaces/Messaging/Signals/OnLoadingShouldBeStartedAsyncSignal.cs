@@ -7,15 +7,16 @@ using Zenject;
 
 namespace Scripts.src.Infrastructure.Interfaces.Messaging.Signals
 {
-    public class OnLoadingShouldBeStartedSignal : SignalBaseWithParameter<OnLoadingShouldBeStartedSignal.OnLoadingShouldBeStartedSignalData>
+    public class OnLoadingShouldBeStartedAsyncSignal : SignalBaseWithParameter<OnLoadingShouldBeStartedAsyncSignal.OnLoadingShouldBeStartedSignalData>
     {
         public class OnLoadingShouldBeStartedSignalData
         {
-            public ILoadingViewSyncFactory LoadingViewSyncFactory { get; set; }
+            public ILoadingViewAsyncFactory LoadingViewSyncFactory { get; set; }
             
             public List<ICommand> Commands { get; set; }
         }
-        public OnLoadingShouldBeStartedSignal(OnLoadingShouldBeStartedSignalData model) : base(model)
+        
+        public OnLoadingShouldBeStartedAsyncSignal(OnLoadingShouldBeStartedSignalData model) : base(model)
         {
         }
     }
