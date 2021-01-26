@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using Core.src.Infrastructure;
 using Core.src.Messaging;
 using Scripts.src.Feature.ViewManagers;
@@ -12,11 +13,14 @@ namespace Scripts.src.Feature.Installers
     {
         [Inject]
         private IEventBus eventBus;
-        
+
+        private CancellationTokenSource loadingCancellationTokenSource;
+
         public override void InstallBindings()
         {
             eventBus.Subscribe<OnLoadingShouldBeStartedSignal>(OnPreloadingShouldBeStartedHandler);
             eventBus.Subscribe<OnLoadingShouldBeStartedAsyncSignal>(OnPreloadingShouldBeStartedAsyncHandler);
+            eventBus.Subscribe<OnLoadingCompletedSignal>(OnLoadingCompletedHandler);
         }
 
         private void OnPreloadingShouldBeStartedHandler(OnLoadingShouldBeStartedSignal signal)
@@ -26,10 +30,11 @@ namespace Scripts.src.Feature.Installers
 
             StartLoading(instance, commands);
         }
-        
+
         private async void OnPreloadingShouldBeStartedAsyncHandler(OnLoadingShouldBeStartedAsyncSignal signal)
         {
-            var instance = await signal.Model.LoadingViewSyncFactory.CreateAsync();
+            loadingCancellationTokenSource = new CancellationTokenSource();
+            var instance = await signal.Model.LoadingViewSyncFactory.CreateAsync(loadingCancellationTokenSource.Token);
             var commands = signal.Model.Commands;
 
             StartLoading(instance, commands);
@@ -44,6 +49,11 @@ namespace Scripts.src.Feature.Installers
             Container.Unbind<ILoadingView>();
             Container.Unbind<List<ICommand>>();
             viewManager.StartLoading();
+        }
+
+        private void OnLoadingCompletedHandler()
+        {
+            loadingCancellationTokenSource?.Cancel();
         }
     }
 }
