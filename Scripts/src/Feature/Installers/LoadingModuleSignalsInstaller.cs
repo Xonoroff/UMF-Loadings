@@ -2,58 +2,48 @@
 using System.Threading;
 using Core.src.Infrastructure;
 using Core.src.Messaging;
+using Cysharp.Threading.Tasks;
+using External.Scripts.src.Infrastructure.Interfaces.Messaging.Signals;
 using Scripts.src.Feature.ViewManagers;
 using Scripts.src.Feature.Views;
-using Scripts.src.Infrastructure.Interfaces.Messaging.Signals;
 using Zenject;
 
-namespace Scripts.src.Feature.Installers
+namespace External.Scripts.src.Feature.Installers
 {
     public class LoadingModuleSignalsInstaller : Installer<LoadingModuleSignalsInstaller>
     {
         [Inject]
         private IEventBus eventBus;
 
-        private CancellationTokenSource loadingCancellationTokenSource;
-
         public override void InstallBindings()
         {
-            eventBus.Subscribe<OnLoadingShouldBeStartedSignal>(OnPreloadingShouldBeStartedHandler);
-            eventBus.Subscribe<OnLoadingShouldBeStartedAsyncSignal>(OnPreloadingShouldBeStartedAsyncHandler);
-            eventBus.Subscribe<OnLoadingCompletedSignal>(OnLoadingCompletedHandler);
+            eventBus.Subscribe<StartLoadingRequest>((request) => OnStartLoadingRequestHandler(request).Forget());
         }
 
-        private void OnPreloadingShouldBeStartedHandler(OnLoadingShouldBeStartedSignal signal)
+        private async UniTaskVoid OnStartLoadingRequestHandler(StartLoadingRequest request)
         {
-            var instance = signal.Model.LoadingViewSyncFactory.Create();
-            var commands = signal.Model.Commands;
+            var instance = await request.LoadingViewSyncFactory.CreateAsync(request.CancellationToken);
+            var commands = request.Commands;
 
-            StartLoading(instance, commands);
+            await StartLoading(instance, commands, request.CancellationToken);
+            
+            request.Callback?.Invoke(DummyResponse.Default);
         }
+        
 
-        private async void OnPreloadingShouldBeStartedAsyncHandler(OnLoadingShouldBeStartedAsyncSignal signal)
-        {
-            loadingCancellationTokenSource = new CancellationTokenSource();
-            var instance = await signal.Model.LoadingViewSyncFactory.CreateAsync(loadingCancellationTokenSource.Token);
-            var commands = signal.Model.Commands;
-
-            StartLoading(instance, commands);
-        }
-
-        private void StartLoading(ILoadingView loadingView, List<ICommand> commands)
+        private async UniTask<AsyncUnit> StartLoading(ILoadingView loadingView, List<ICommand> commands, CancellationToken cancellationToken)
         {
             Container.Rebind<ILoadingView>().FromInstance(loadingView).AsTransient();
             Container.Rebind<List<ICommand>>().FromInstance(commands).AsTransient();
+            
             var viewManager = Container.Resolve<ILoadingViewManager>();
             //Here's a bit magic to unload from memory view
             Container.Unbind<ILoadingView>();
             Container.Unbind<List<ICommand>>();
-            viewManager.StartLoading();
-        }
+            
+            await viewManager.StartLoading(cancellationToken);
 
-        private void OnLoadingCompletedHandler()
-        {
-            loadingCancellationTokenSource?.Cancel();
+            return AsyncUnit.Default;
         }
     }
 }

@@ -1,7 +1,10 @@
-﻿namespace Scripts.src.Feature.ViewManagers
+﻿using System.Threading;
+using Cysharp.Threading.Tasks;
+
+namespace Scripts.src.Feature.ViewManagers
 {
     public interface ILoadingViewManager
     {
-        void StartLoading();
+        UniTask<AsyncUnit> StartLoading(CancellationToken cancellationToken);
     }
 }

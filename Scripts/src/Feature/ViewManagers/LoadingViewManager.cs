@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Threading;
 using Core.src.Infrastructure;
 using Core.src.Messaging;
+using Cysharp.Threading.Tasks;
 using Scripts.src.Feature.Managers;
 using Scripts.src.Feature.Views;
-using Scripts.src.Infrastructure.Interfaces.Messaging.Signals;
 using UnityEngine;
 using Zenject;
 using Object = UnityEngine.Object;
@@ -12,26 +13,22 @@ namespace Scripts.src.Feature.ViewManagers
 {
     public class LoadingViewManager : ILoadingViewManager
     {
-        [Inject]
-        private ILoadingView loadingView;
+        private readonly ILoadingView loadingView;
         
-        [Inject]
-        private ILoadingManager loadingManager;
+        private readonly ILoadingManager loadingManager;
 
-        [Inject]
-        private IEventBus eventBus;
+        private UniTaskCompletionSource<AsyncUnit> uniTaskCompletionSource;
 
-        public LoadingViewManager(ILoadingView loadingView,
-            ILoadingManager loadingManager,
-            IEventBus eventBus)
+        public LoadingViewManager(ILoadingView loadingView, ILoadingManager loadingManager)
         {
             this.loadingView = loadingView;
             this.loadingManager = loadingManager;
-            this.eventBus = eventBus;
         }
         
-        public void StartLoading()
+        public UniTask<AsyncUnit> StartLoading(CancellationToken cancellationToken)
         {
+            uniTaskCompletionSource = new UniTaskCompletionSource<AsyncUnit>();
+            
             Initialize();
             
             var firstCommand = loadingManager.GetFirstCommand();
@@ -40,6 +37,8 @@ namespace Scripts.src.Feature.ViewManagers
             Object.DontDestroyOnLoad(loadingView.GameObject);
 
             loadingManager.StartPreloading();
+
+            return uniTaskCompletionSource.Task;
         }
         
         private void Initialize()
@@ -55,6 +54,7 @@ namespace Scripts.src.Feature.ViewManagers
             var currentProgress = GetExecutingProgress(loadingManager.CurrentCommandIndex + 1);
             loadingView.SetProgressText(currentProgress);
             loadingView.SetProgressText(command.Description);
+            uniTaskCompletionSource?.TrySetResult(AsyncUnit.Default);
         }
 
         private void OnLoadingCompletedHandler()
@@ -62,7 +62,6 @@ namespace Scripts.src.Feature.ViewManagers
             Object.Destroy(loadingView.GameObject);
             Resources.UnloadUnusedAssets();
             GC.Collect();
-            eventBus.Fire(new OnLoadingCompletedSignal());
         }
 
         private void OnCommandFailedHandler(ICommand failedCommand, Exception exception)
