@@ -23,6 +23,8 @@ namespace Scripts.src.Feature.ViewManagers
 
         private LoadingViewEntity cachedViewEntity;
 
+        private UniTaskCompletionSource<AsyncUnit> uniTaskCompletionSource;
+        
         public LoadingViewManager(ILoadingView loadingView, ILoadingManager loadingManager)
         {
             this.loadingView = loadingView;

@@ -34,7 +34,7 @@ namespace Scripts.src.Feature.Managers
             commandExecutor.OnCommandStartedExecution += (c) => OnCommandStartedExecution?.Invoke(c);
             commandExecutor.OnCommandCompleted += (c) => OnCommandCompleted?.Invoke(c);
             commandExecutor.OnCommandFailed += (c, e) => OnCommandFailed?.Invoke(c,e);
-            commandExecutor.OnCommandProgressChanged += (c,p) => OnCommandProgressChanged;
+            commandExecutor.OnCommandProgressChanged += (c,p) => OnCommandProgressChanged?.Invoke(c, p);
             commandExecutor.OnAllCompleted += (wasErrors) => OnLoadingCompleted?.Invoke();
         }
         
