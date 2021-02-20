@@ -5,6 +5,6 @@ namespace Scripts.src.Feature.ViewManagers
 {
     public interface ILoadingViewManager
     {
-        UniTask<AsyncUnit> StartLoading(CancellationToken cancellationToken);
+        UniTask<AsyncUnit> StartLoading(CancellationToken cancellationToken, int delayBeforeDestroy = 500);
     }
 }

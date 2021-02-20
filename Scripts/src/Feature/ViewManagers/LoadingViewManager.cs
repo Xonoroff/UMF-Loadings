@@ -24,6 +24,8 @@ namespace Scripts.src.Feature.ViewManagers
         private LoadingViewEntity cachedViewEntity;
 
         private UniTaskCompletionSource<AsyncUnit> uniTaskCompletionSource;
+
+        private int delayBeforeViewDestroy;
         
         public LoadingViewManager(ILoadingView loadingView, ILoadingManager loadingManager)
         {
@@ -31,8 +33,9 @@ namespace Scripts.src.Feature.ViewManagers
             this.loadingManager = loadingManager;
         }
         
-        public UniTask<AsyncUnit> StartLoading(CancellationToken cancellationToken)
+        public UniTask<AsyncUnit> StartLoading(CancellationToken cancellationToken, int delayBeforeDestroy = 500)
         {
+            this.delayBeforeViewDestroy = delayBeforeDestroy;
             uniTaskCompletionSource = new UniTaskCompletionSource<AsyncUnit>();
             
             Initialize();
@@ -62,7 +65,7 @@ namespace Scripts.src.Feature.ViewManagers
             loadingManager.OnCommandCompleted += OnCommandCompletedHandler;
             loadingManager.OnCommandFailed += OnCommandFailedHandler;
             loadingManager.OnCommandProgressChanged += OnCommandProgressChanged;
-            loadingManager.OnLoadingCompleted += OnLoadingCompletedHandler;
+            loadingManager.OnLoadingCompleted += () => OnLoadingCompletedHandler().Forget();
         }
 
         private void OnCommandProgressChanged(ICommand command, float progress)
@@ -86,8 +89,10 @@ namespace Scripts.src.Feature.ViewManagers
             loadingView.SetViewEntity(cachedViewEntity);
         }
 
-        private void OnLoadingCompletedHandler()
+        private async UniTaskVoid OnLoadingCompletedHandler()
         {
+            await UniTask.Delay(delayBeforeViewDestroy);
+            
             Object.Destroy(loadingView.GameObject);
             Resources.UnloadUnusedAssets();
             GC.Collect();
@@ -120,7 +125,7 @@ namespace Scripts.src.Feature.ViewManagers
 
         private float CalculateProgress(float commandProgress)
         {
-            float step = 1 / (float)(loadingManager.TotalCommands + 1);
+            float step = 1 / (float)(loadingManager.TotalCommands);
             float min = loadingManager.CurrentCommandIndex * step;
             float max = (loadingManager.CurrentCommandIndex + 1) * step;
             float result = min + ((max - min) * commandProgress); 
