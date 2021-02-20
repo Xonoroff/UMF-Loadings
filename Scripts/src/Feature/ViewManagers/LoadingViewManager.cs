@@ -120,7 +120,7 @@ namespace Scripts.src.Feature.ViewManagers
 
         private float CalculateProgress(float commandProgress)
         {
-            var maxProgressForCurrentCommand = (loadingManager.CurrentCommandIndex + 1) / loadingManager.TotalCommands + 1;
+            var maxProgressForCurrentCommand = (float)(loadingManager.CurrentCommandIndex + 1) / (loadingManager.TotalCommands + 1);
             return maxProgressForCurrentCommand * commandProgress;
         }
     }
