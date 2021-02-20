@@ -31,10 +31,10 @@ namespace Scripts.src.Feature.Managers
         private void Initialize()
         {
             commandExecutor.Initialize(commandsToExecute);
-            commandExecutor.OnCommandStartedExecution += OnCommandStartedExecution;
-            commandExecutor.OnCommandCompleted += OnCommandCompleted;
-            commandExecutor.OnCommandFailed += OnCommandFailed;
-            commandExecutor.OnCommandProgressChanged += OnCommandProgressChanged;
+            commandExecutor.OnCommandStartedExecution += (c) => OnCommandStartedExecution?.Invoke(c);
+            commandExecutor.OnCommandCompleted += (c) => OnCommandCompleted?.Invoke(c);
+            commandExecutor.OnCommandFailed += (c, e) => OnCommandFailed?.Invoke(c,e);
+            commandExecutor.OnCommandProgressChanged += (c,p) => OnCommandProgressChanged;
             commandExecutor.OnAllCompleted += (wasErrors) => OnLoadingCompleted?.Invoke();
         }
         

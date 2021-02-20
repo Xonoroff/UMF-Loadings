@@ -1,4 +1,5 @@
-﻿using Scripts.src.Feature.Managers;
+﻿using External.Scripts.src.Feature.Installers;
+using Scripts.src.Feature.Managers;
 using Scripts.src.Feature.ViewManagers;
 using Zenject;
 

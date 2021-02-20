@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Threading;
 using Core.src.Infrastructure;
 using Core.src.Messaging;
+using Cysharp.Threading.Tasks;
 using Scripts.src.Feature.Managers;
 using Scripts.src.Feature.Views;
-using Scripts.src.Infrastructure.Interfaces.Messaging.Signals;
 using UnityEngine;
 using Zenject;
 using Object = UnityEngine.Object;
@@ -22,17 +23,16 @@ namespace Scripts.src.Feature.ViewManagers
 
         private LoadingViewEntity cachedViewEntity;
 
-        public LoadingViewManager(ILoadingView loadingView,
-            ILoadingManager loadingManager,
-            IEventBus eventBus)
+        public LoadingViewManager(ILoadingView loadingView, ILoadingManager loadingManager)
         {
             this.loadingView = loadingView;
             this.loadingManager = loadingManager;
-            this.eventBus = eventBus;
         }
         
-        public void StartLoading()
+        public UniTask<AsyncUnit> StartLoading(CancellationToken cancellationToken)
         {
+            uniTaskCompletionSource = new UniTaskCompletionSource<AsyncUnit>();
+            
             Initialize();
 
             currentProgress = 0;
@@ -50,6 +50,8 @@ namespace Scripts.src.Feature.ViewManagers
             Object.DontDestroyOnLoad(loadingView.GameObject);
 
             loadingManager.StartPreloading();
+
+            return uniTaskCompletionSource.Task;
         }
         
         private void Initialize()
@@ -87,7 +89,7 @@ namespace Scripts.src.Feature.ViewManagers
             Object.Destroy(loadingView.GameObject);
             Resources.UnloadUnusedAssets();
             GC.Collect();
-            eventBus.Fire(new OnLoadingCompletedSignal());
+            uniTaskCompletionSource?.TrySetResult(AsyncUnit.Default);
         }
 
         private void OnCommandFailedHandler(ICommand failedCommand, Exception exception)

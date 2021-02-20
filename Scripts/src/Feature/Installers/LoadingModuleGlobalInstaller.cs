@@ -1,5 +1,5 @@
 ﻿using Core.src.Utils;
-using Scripts.src.Infrastructure.Interfaces.Messaging.Signals;
+using External.Scripts.src.Infrastructure.Interfaces.Messaging.Signals;
 using Zenject;
 
 namespace Scripts.src.Feature.Installers
@@ -13,10 +13,7 @@ namespace Scripts.src.Feature.Installers
         
         public override void InstallBindings()
         {
-            eventBus.DeclareSignal<OnLoadingShouldBeStartedSignal>();
-            eventBus.DeclareSignal<OnLoadingShouldBeStartedAsyncSignal>();
-            eventBus.DeclareSignal<OnLoadingCompletedSignal>();
-            
+            eventBus.DeclareSignal<StartLoadingRequest>();
             base.InstallBindings();
         }
     }
