@@ -9,6 +9,7 @@ namespace Scripts.src.Feature.Managers
         public event Action<ICommand> OnCommandStartedExecution;
         public event Action<ICommand> OnCommandCompleted;
         public event Action<ICommand, Exception> OnCommandFailed;
+        public event Action<ICommand, float> OnCommandProgressChanged;
         public event Action OnLoadingCompleted;
 
         public ICommand CurrentCommand => commandExecutor.Current;
@@ -33,6 +34,7 @@ namespace Scripts.src.Feature.Managers
             commandExecutor.OnCommandStartedExecution += OnCommandStartedExecution;
             commandExecutor.OnCommandCompleted += OnCommandCompleted;
             commandExecutor.OnCommandFailed += OnCommandFailed;
+            commandExecutor.OnCommandProgressChanged += OnCommandProgressChanged;
             commandExecutor.OnAllCompleted += (wasErrors) => OnLoadingCompleted?.Invoke();
         }
         

@@ -12,14 +12,15 @@ namespace Scripts.src.Feature.ViewManagers
 {
     public class LoadingViewManager : ILoadingViewManager
     {
-        [Inject]
-        private ILoadingView loadingView;
+        private readonly ILoadingView loadingView;
         
-        [Inject]
-        private ILoadingManager loadingManager;
+        private readonly ILoadingManager loadingManager;
 
-        [Inject]
-        private IEventBus eventBus;
+        private readonly IEventBus eventBus;
+
+        private float currentProgress;
+
+        private LoadingViewEntity cachedViewEntity;
 
         public LoadingViewManager(ILoadingView loadingView,
             ILoadingManager loadingManager,
@@ -33,10 +34,19 @@ namespace Scripts.src.Feature.ViewManagers
         public void StartLoading()
         {
             Initialize();
-            
+
+            currentProgress = 0;
             var firstCommand = loadingManager.GetFirstCommand();
-            loadingView.SetProgressText(firstCommand.Description);
-            loadingView.SetDescriptionText(loadingManager.TotalCommands.ToString());
+            cachedViewEntity = new LoadingViewEntity()
+            {
+                CurrentProgress = currentProgress,
+                CurrentCommand = 0,
+                TotalCommands = loadingManager.TotalCommands,
+                CurrentDescription = firstCommand.Description,
+            };
+            
+            loadingView.SetViewEntity(cachedViewEntity);
+            
             Object.DontDestroyOnLoad(loadingView.GameObject);
 
             loadingManager.StartPreloading();
@@ -47,14 +57,29 @@ namespace Scripts.src.Feature.ViewManagers
             loadingManager.OnCommandStartedExecution += OnCommandStartedExecution;
             loadingManager.OnCommandCompleted += OnCommandCompletedHandler;
             loadingManager.OnCommandFailed += OnCommandFailedHandler;
+            loadingManager.OnCommandProgressChanged += OnCommandProgressChanged;
             loadingManager.OnLoadingCompleted += OnLoadingCompletedHandler;
+        }
+
+        private void OnCommandProgressChanged(ICommand command, float progress)
+        {
+
+            cachedViewEntity.CurrentProgress = CalculateProgress(progress);
+            cachedViewEntity.CurrentCommand = loadingManager.CurrentCommandIndex;
+            cachedViewEntity.TotalCommands = loadingManager.TotalCommands;
+            cachedViewEntity.CurrentDescription = command.Description;
+            
+            loadingView.SetViewEntity(cachedViewEntity);
         }
 
         private void OnCommandStartedExecution(ICommand command)
         {
-            var currentProgress = GetExecutingProgress(loadingManager.CurrentCommandIndex + 1);
-            loadingView.SetProgressText(currentProgress);
-            loadingView.SetProgressText(command.Description);
+            
+            cachedViewEntity.CurrentProgress = CalculateProgress(0);
+            cachedViewEntity.CurrentCommand = loadingManager.CurrentCommandIndex;
+            cachedViewEntity.TotalCommands = loadingManager.TotalCommands;
+            cachedViewEntity.CurrentDescription = command.Description;
+            loadingView.SetViewEntity(cachedViewEntity);
         }
 
         private void OnLoadingCompletedHandler()
@@ -67,19 +92,32 @@ namespace Scripts.src.Feature.ViewManagers
 
         private void OnCommandFailedHandler(ICommand failedCommand, Exception exception)
         {
-            var currentProgress = GetExecutingProgress(loadingManager.CurrentCommandIndex + 2);
-            loadingView.SetProgressText(currentProgress);
+            var viewEntity = new LoadingViewEntity()
+            {
+                CurrentProgress = CalculateProgress(1),
+                CurrentCommand = loadingManager.CurrentCommandIndex,
+                TotalCommands = loadingManager.TotalCommands,
+                CurrentDescription = failedCommand.Description,
+            };
+            loadingView.SetViewEntity(viewEntity);
         }
 
         private void OnCommandCompletedHandler(ICommand command)
         {
-            var currentProgress = GetExecutingProgress(loadingManager.CurrentCommandIndex + 2);
-            loadingView.SetProgressText(currentProgress);
+            var viewEntity = new LoadingViewEntity()
+            {
+                CurrentProgress = CalculateProgress(1),
+                CurrentCommand = loadingManager.CurrentCommandIndex,
+                TotalCommands = loadingManager.TotalCommands,
+                CurrentDescription = command.Description,
+            };
+            loadingView.SetViewEntity(viewEntity);
         }
 
-        private string GetExecutingProgress(int currentProgress)
+        private float CalculateProgress(float commandProgress)
         {
-            return $"{currentProgress}/{loadingManager.TotalCommands}";
+            var maxProgressForCurrentCommand = (loadingManager.CurrentCommandIndex + 1) / loadingManager.TotalCommands + 1;
+            return maxProgressForCurrentCommand * commandProgress;
         }
     }
 }

@@ -10,7 +10,9 @@ namespace Scripts.src.Feature.Managers
         event Action<ICommand> OnCommandCompleted;
         
         event Action<ICommand, Exception> OnCommandFailed;
-        
+
+        event Action<ICommand, float> OnCommandProgressChanged;
+
         event Action OnLoadingCompleted;
 
         ICommand CurrentCommand { get; }
