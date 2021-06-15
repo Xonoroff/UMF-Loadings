@@ -52,7 +52,7 @@ namespace Scripts.src.Feature.ViewManagers
             
             loadingView.SetViewEntity(cachedViewEntity);
             
-            Object.DontDestroyOnLoad(loadingView.GameObject);
+            Object.DontDestroyOnLoad(loadingView.ViewGameObject);
 
             loadingManager.StartPreloading();
 
@@ -93,7 +93,7 @@ namespace Scripts.src.Feature.ViewManagers
         {
             await UniTask.Delay(delayBeforeViewDestroy);
             
-            Object.Destroy(loadingView.GameObject);
+            Object.Destroy(loadingView.ViewGameObject);
             Resources.UnloadUnusedAssets();
             GC.Collect();
             uniTaskCompletionSource?.TrySetResult(AsyncUnit.Default);

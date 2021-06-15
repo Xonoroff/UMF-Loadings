@@ -1,11 +1,10 @@
-﻿using UnityEngine;
+﻿using DefaultNamespace;
+using UnityEngine;
 
 namespace Scripts.src.Feature.Views
 {
-    public interface ILoadingView
+    public interface ILoadingView : IView<LoadingViewEntity>
     {
-        GameObject GameObject { get; }
-        void SetViewEntity(LoadingViewEntity loadingViewEntity);
         void SetConfig(LoadingViewConfig loadingViewConfig);
     }
 }
